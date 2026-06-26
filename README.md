@@ -141,7 +141,7 @@ Records older than `logging.channels.database.days` days are removed on each run
 ## Requirements
 
 - PHP ^8.3
-- Laravel 12 (`illuminate/support ^12.9`)
+- Laravel 12 (`illuminate/support ^12.0`)
 
 ## Testing
 
