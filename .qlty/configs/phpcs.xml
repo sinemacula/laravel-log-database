@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<ruleset name="Project">
+
+    <!-- DisallowMixedTypeHint excluded: a log driver handles arbitrary
+         caller-shaped data - channel config (`array<string, mixed>`) and the
+         JSON context/extra payloads - so `mixed` is the correct type, not
+         laziness. The Testbench environment hooks also type $app as untyped,
+         which PHP forbids narrowing. PHPStan still guards unsafe mixed access. -->
+    <rule ref="SineMaculaLaravelPackage">
+        <exclude name="SlevomatCodingStandard.TypeHints.DisallowMixedTypeHint"/>
+    </rule>
+
+    <file>src</file>
+    <file>tests</file>
+
+</ruleset>

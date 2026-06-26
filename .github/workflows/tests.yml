@@ -1,0 +1,143 @@
+# ==============================================================================
+# TESTS
+# ==============================================================================
+name: Tests
+
+# ==============================================================================
+# TRIGGERS
+# ==============================================================================
+on:
+    push:
+        branches: [ master ]
+    pull_request:
+        types: [ opened, synchronize, reopened, ready_for_review ]
+    workflow_dispatch:
+
+# ==============================================================================
+# CONCURRENCY
+# ==============================================================================
+concurrency:
+    group: tests-${{ github.event.pull_request.number || github.ref }}
+    cancel-in-progress: true
+
+# ==============================================================================
+# PERMISSIONS
+# ==============================================================================
+permissions:
+    contents: read
+    id-token: write
+
+# ==============================================================================
+# DEFAULTS
+# ==============================================================================
+defaults:
+    run:
+        shell: bash
+
+jobs:
+
+    # ==========================================================================
+    # JOB: TESTS
+    # ==========================================================================
+    tests:
+        name: Test / PHP ${{ matrix.php }}
+        runs-on: ubuntu-latest
+
+        strategy:
+            fail-fast: false
+            matrix:
+                php: [ 8.3, 8.4, 8.5 ]
+
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v5
+                with:
+                    persist-credentials: false
+
+            -   name: Setup PHP
+                uses: sinemacula/.github/.github/actions/setup-php@v1.1.1
+                with:
+                    php-version: ${{ matrix.php }}
+
+            -   name: PHPUnit
+                run: composer test:coverage
+
+            -   name: Publish code coverage
+                if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' && matrix.php == '8.3' }}
+                uses: qltysh/qlty-action/coverage@v2
+                with:
+                    oidc: true
+                    files: clover.xml
+
+    # ==========================================================================
+    # JOB: INTEGRATION TESTS (MySQL + PostgreSQL)
+    # ==========================================================================
+    integration:
+        name: Integration / ${{ matrix.database }}
+        runs-on: ubuntu-latest
+
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    -   database: mysql
+                        db_driver: mysql
+                        db_port: 3306
+                        db_username: root
+                        db_password: password
+                    -   database: pgsql
+                        db_driver: pgsql
+                        db_port: 5432
+                        db_username: postgres
+                        db_password: password
+
+        services:
+            mysql:
+                image: mysql:8.4
+                env:
+                    MYSQL_ROOT_PASSWORD: password
+                    MYSQL_DATABASE: log_database_test
+                ports:
+                    - 3306:3306
+                options: >-
+                    --health-cmd="mysqladmin ping -h 127.0.0.1"
+                    --health-interval=10s
+                    --health-timeout=5s
+                    --health-retries=5
+                    --health-start-period=30s
+                    --health-start-interval=5s
+            postgres:
+                image: postgres:17
+                env:
+                    POSTGRES_USER: postgres
+                    POSTGRES_PASSWORD: password
+                    POSTGRES_DB: log_database_test
+                ports:
+                    - 5432:5432
+                options: >-
+                    --health-cmd="pg_isready -U postgres"
+                    --health-interval=10s
+                    --health-timeout=5s
+                    --health-retries=5
+
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v5
+                with:
+                    persist-credentials: false
+
+            -   name: Setup PHP
+                uses: sinemacula/.github/.github/actions/setup-php@v1.1.1
+                with:
+                    php-version: 8.3
+                    extensions: pdo_mysql, pdo_pgsql
+
+            -   name: Run integration tests
+                env:
+                    DB_DRIVER: ${{ matrix.db_driver }}
+                    DB_HOST: 127.0.0.1
+                    DB_PORT: ${{ matrix.db_port }}
+                    DB_DATABASE: log_database_test
+                    DB_USERNAME: ${{ matrix.db_username }}
+                    DB_PASSWORD: ${{ matrix.db_password }}
+                run: composer test:integration

@@ -1,0 +1,105 @@
+{
+    "name": "sinemacula/laravel-log-database",
+    "type": "library",
+    "description": "A database Monolog log driver for Laravel - persists log records to an Eloquent-backed table.",
+    "keywords": [
+        "sine macula",
+        "laravel",
+        "logging",
+        "database",
+        "monolog",
+        "eloquent"
+    ],
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "Ben Carey",
+            "email": "bdmc@sinemacula.co.uk"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "illuminate/database": "^12.0",
+        "illuminate/log": "^12.0",
+        "illuminate/support": "^12.0",
+        "monolog/monolog": "^3.0"
+    },
+    "require-dev": {
+        "brianium/paratest": "^7.20",
+        "friendsofphp/php-cs-fixer": "^3.94",
+        "infection/infection": "^0.33.2",
+        "orchestra/testbench": "^10.0",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-strict-rules": "^2.0",
+        "phpunit/phpunit": "^12.5",
+        "sinemacula/coding-standards-laravel": "^1.0",
+        "slevomat/coding-standard": "^8.29",
+        "squizlabs/php_codesniffer": "^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "SineMacula\\Log\\Database\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "qlty check"
+        ],
+        "format": [
+            "qlty fmt"
+        ],
+        "smells": [
+            "qlty smells"
+        ],
+        "test": [
+            "@php vendor/bin/paratest"
+        ],
+        "test:coverage": [
+            "@php vendor/bin/paratest --coverage-clover=clover.xml"
+        ],
+        "test:integration": [
+            "@php vendor/bin/phpunit --testsuite Integration"
+        ],
+        "test:mutation": [
+            "@php vendor/bin/infection --configuration=infection.json5 --test-framework-options=\"--do-not-fail-on-warning --do-not-fail-on-phpunit-warning\" --only-covering-test-cases --min-msi=90 --min-covered-msi=90"
+        ],
+        "test:mutation:full": [
+            "@php vendor/bin/infection --configuration=infection.full.json5 --test-framework-options=\"--do-not-fail-on-warning --do-not-fail-on-phpunit-warning\" --only-covering-test-cases"
+        ]
+    },
+    "scripts-descriptions": {
+        "check": "Run static analysis and lint checks via qlty.",
+        "format": "Format codebase using qlty.",
+        "smells": "Report code smells (duplication, complexity) via qlty.",
+        "test": "Run the PHPUnit test suite in parallel using Paratest.",
+        "test:coverage": "Run the PHPUnit test suite with clover coverage report.",
+        "test:integration": "Run the integration test suite (single process) against the configured database.",
+        "test:mutation": "Run the Infection mutation-testing gate against the MSI thresholds.",
+        "test:mutation:full": "Run the full Infection mutation suite without MSI thresholds."
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "infection/extension-installer": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "extra": {
+        "laravel": {
+            "providers": [
+                "SineMacula\\Log\\Database\\LogDatabaseServiceProvider"
+            ]
+        }
+    }
+}
