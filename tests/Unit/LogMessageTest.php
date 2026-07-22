@@ -216,8 +216,8 @@ final class LogMessageTest extends TestCase
     }
 
     /**
-     * Test that pruning is disabled (prunes nothing) when the days value is
-     * not numeric, rather than wiping the entire table.
+     * Test that pruning is disabled (prunes nothing) when the days value is not
+     * numeric, rather than wiping the entire table.
      *
      * @return void
      */
