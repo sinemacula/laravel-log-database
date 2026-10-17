@@ -1,4 +1,6 @@
-# Laravel Log Database
+<h1 align="center">Laravel Log Database</h1>
+
+<div align="center">
 
 [![Latest Stable Version](https://img.shields.io/packagist/v/sinemacula/laravel-log-database.svg)](https://packagist.org/packages/sinemacula/laravel-log-database)
 [![Build Status](https://github.com/sinemacula/laravel-log-database/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/sinemacula/laravel-log-database/actions/workflows/tests.yml)
@@ -6,6 +8,8 @@
 [![Maintainability](https://qlty.sh/gh/sinemacula/projects/laravel-log-database/maintainability.svg)](https://qlty.sh/gh/sinemacula/projects/laravel-log-database)
 [![Code Coverage](https://qlty.sh/gh/sinemacula/projects/laravel-log-database/coverage.svg)](https://qlty.sh/gh/sinemacula/projects/laravel-log-database)
 [![Total Downloads](https://img.shields.io/packagist/dt/sinemacula/laravel-log-database.svg)](https://packagist.org/packages/sinemacula/laravel-log-database)
+
+</div>
 
 A custom Monolog log driver for Laravel that persists log records to a database table through an Eloquent model.
 Registering the package's `database` log channel routes your application's logs into a `logs` table instead of, or
