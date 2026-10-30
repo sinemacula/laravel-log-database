@@ -3,11 +3,14 @@
 <div align="center">
 
 [![Latest Stable Version](https://img.shields.io/packagist/v/sinemacula/laravel-log-database.svg)](https://packagist.org/packages/sinemacula/laravel-log-database)
+[![PHP Version](https://img.shields.io/packagist/dependency-v/sinemacula/laravel-log-database/php.svg)](https://packagist.org/packages/sinemacula/laravel-log-database)
+[![Laravel Version](https://img.shields.io/packagist/dependency-v/sinemacula/laravel-log-database/laravel/framework.svg?label=laravel)](https://packagist.org/packages/sinemacula/laravel-log-database)
 [![Build Status](https://github.com/sinemacula/laravel-log-database/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/sinemacula/laravel-log-database/actions/workflows/tests.yml)
 [![Quality Gates](https://github.com/sinemacula/laravel-log-database/actions/workflows/quality-gates.yml/badge.svg?branch=master)](https://github.com/sinemacula/laravel-log-database/actions/workflows/quality-gates.yml)
 [![Maintainability](https://qlty.sh/gh/sinemacula/projects/laravel-log-database/maintainability.svg)](https://qlty.sh/gh/sinemacula/projects/laravel-log-database)
 [![Code Coverage](https://qlty.sh/gh/sinemacula/projects/laravel-log-database/coverage.svg)](https://qlty.sh/gh/sinemacula/projects/laravel-log-database)
 [![Total Downloads](https://img.shields.io/packagist/dt/sinemacula/laravel-log-database.svg)](https://packagist.org/packages/sinemacula/laravel-log-database)
+[![License](https://img.shields.io/github/license/sinemacula/laravel-log-database.svg)](LICENSE)
 
 </div>
 
