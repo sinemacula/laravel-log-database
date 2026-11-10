@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/sinemacula/laravel-log-database/compare/v1.1.0...v1.1.1) (2026-11-10)
+
+
+### Bug Fixes
+
+* clear the qlty findings and drop configuration the shared source provides ([#62](https://github.com/sinemacula/laravel-log-database/issues/62)) ([64fe1e6](https://github.com/sinemacula/laravel-log-database/commit/64fe1e6bcfc36eaaaa048821f6f62c48ece4269a))
+
 ## [1.1.0](https://github.com/sinemacula/laravel-log-database/compare/v1.0.0...v1.1.0) (2026-07-22)
 
 
