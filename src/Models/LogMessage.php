@@ -60,7 +60,7 @@ final class LogMessage extends Model
     /**
      * Get the prunable model query.
      *
-     * @return \Illuminate\Database\Eloquent\Builder<static>
+     * @return \Illuminate\Database\Eloquent\Builder<self>
      */
     public function prunable(): Builder
     {

@@ -7,9 +7,12 @@ namespace Tests\Unit;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Monolog\Formatter\NormalizerFormatter;
 use Monolog\Level;
 use Monolog\LogRecord;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use Psr\Log\InvalidArgumentException;
 use SineMacula\Log\Database\DatabaseHandler;
 use SineMacula\Log\Database\Models\LogMessage;
 use Tests\TestCase;
@@ -534,6 +537,8 @@ final class DatabaseHandlerTest extends TestCase
         $handler  = new DatabaseHandler;
         $resource = fopen('php://memory', 'r');
 
+        self::assertIsResource($resource);
+
         $record = new LogRecord(
             datetime: new \DateTimeImmutable,
             channel: 'database',
@@ -583,6 +588,100 @@ final class DatabaseHandlerTest extends TestCase
             channel: 'database',
             level: Level::Error,
             message: 'Recurse',
+            context: [],
+        );
+
+        $handler->handle($record);
+    }
+
+    /**
+     * Provide the minimum levels the handler accepts, with their resolutions.
+     *
+     * @return iterable<string, array{int|\Monolog\Level|string, \Monolog\Level}>
+     */
+    public static function provideAcceptedLevels(): iterable
+    {
+        yield 'level' => [Level::Warning, Level::Warning];
+        yield 'value' => [400, Level::Error];
+        yield 'numeric value' => ['250', Level::Notice];
+        yield 'lower-case name' => ['critical', Level::Critical];
+        yield 'upper-case name' => ['ALERT', Level::Alert];
+        yield 'mixed-case name' => ['Emergency', Level::Emergency];
+    }
+
+    /**
+     * Test that the minimum level is accepted in each form Monolog accepts.
+     *
+     * @param  int|\Monolog\Level|string  $configured
+     * @param  \Monolog\Level  $expected
+     * @return void
+     */
+    #[DataProvider('provideAcceptedLevels')]
+    public function testConstructorAcceptsEachFormOfLevel(int|Level|string $configured, Level $expected): void
+    {
+        $handler = new DatabaseHandler(['level' => $configured]);
+
+        self::assertSame($expected, $handler->getLevel());
+    }
+
+    /**
+     * Provide minimum levels the handler refuses.
+     *
+     * @return iterable<string, array{mixed}>
+     */
+    public static function provideRefusedLevels(): iterable
+    {
+        yield 'unknown name' => ['verbose'];
+        yield 'unknown value' => [150];
+        yield 'unknown numeric value' => ['999'];
+        yield 'array' => [['debug']];
+        yield 'boolean' => [true];
+    }
+
+    /**
+     * Test that a minimum level Monolog does not define is refused.
+     *
+     * @param  mixed  $configured
+     * @return void
+     */
+    #[DataProvider('provideRefusedLevels')]
+    public function testConstructorRefusesAnUndefinedLevel(mixed $configured): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The database log level must be one of: DEBUG, INFO, NOTICE, WARNING, ERROR, CRITICAL, ALERT, EMERGENCY.');
+
+        new DatabaseHandler(['level' => $configured]);
+    }
+
+    /**
+     * Test that the fallback re-emits the raw message when the formatter does
+     * not produce a string.
+     *
+     * @return void
+     */
+    public function testFallbackUsesTheMessageWhenTheFormattedRecordIsNotAString(): void
+    {
+        Config::set('logging.channels.fallback.channels', ['single']);
+
+        Log::shouldReceive('stack')
+            ->andReturnSelf();
+        Log::shouldReceive('log')
+            ->once()
+            ->with('info', 'Unformatted fallback');
+        Log::shouldReceive('error')
+            ->once();
+
+        // Drop the logs table so the insert fails
+        Schema::drop('logs');
+
+        $handler = new DatabaseHandler(['level' => 'debug']);
+        $handler->setFormatter(new NormalizerFormatter);
+
+        $record = new LogRecord(
+            datetime: new \DateTimeImmutable,
+            channel: 'database',
+            level: Level::Info,
+            message: 'Unformatted fallback',
             context: [],
         );
 
