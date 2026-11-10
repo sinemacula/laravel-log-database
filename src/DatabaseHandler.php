@@ -6,6 +6,7 @@ namespace SineMacula\Log\Database;
 
 use Illuminate\Support\Facades\Log;
 use Monolog\Handler\AbstractProcessingHandler;
+use Monolog\Level;
 use Monolog\LogRecord;
 use SineMacula\Log\Database\Models\LogMessage;
 
@@ -32,7 +33,7 @@ final class DatabaseHandler extends AbstractProcessingHandler
      */
     public function __construct(array $config = [])
     {
-        parent::__construct($config['level'] ?? config('logging.channels.database.level', 'debug'));
+        parent::__construct(self::resolveLevel($config['level'] ?? config('logging.channels.database.level', 'debug')));
     }
 
     /**
@@ -94,13 +95,54 @@ final class DatabaseHandler extends AbstractProcessingHandler
 
         // Re-emit at the record's original severity so a fallback channel's own
         // level threshold does not silently drop a high-severity record.
-        Log::stack($channels)->log($level, $record->formatted ?? $record->message);
+        $message = is_string($record->formatted) ? $record->formatted : $record->message;
+
+        Log::stack($channels)->log($level, $message);
 
         // Surface the failure with the full exception detail (class, message,
         // and trace) so a database outage is diagnosable, not just its message.
         Log::stack($channels)->error('Could not log to the database.', [
             'exception' => (string) $exception,
         ]);
+    }
+
+    /**
+     * Resolve the configured minimum level from what Monolog itself accepts: a
+     * level, its value, or its name in any case.
+     *
+     * @param  mixed  $level
+     * @return \Monolog\Level
+     *
+     * @throws \InvalidArgumentException
+     */
+    private static function resolveLevel(mixed $level): Level
+    {
+        if ($level instanceof Level) {
+            return $level;
+        }
+
+        if (is_int($level) || is_string($level)) {
+            $resolved = is_numeric($level)
+                ? Level::tryFrom((int) $level)
+                : self::levelNamed(strtoupper($level));
+
+            if ($resolved !== null) {
+                return $resolved;
+            }
+        }
+
+        throw new \InvalidArgumentException(sprintf('The database log level must be one of: %s.', implode(', ', Level::NAMES)));
+    }
+
+    /**
+     * Get the level with the given upper-case name, if there is one.
+     *
+     * @param  string  $name
+     * @return \Monolog\Level|null
+     */
+    private static function levelNamed(string $name): ?Level
+    {
+        return in_array($name, Level::NAMES, true) ? Level::fromName($name) : null;
     }
 
     /**
