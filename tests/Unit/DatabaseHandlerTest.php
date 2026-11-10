@@ -534,6 +534,8 @@ final class DatabaseHandlerTest extends TestCase
         $handler  = new DatabaseHandler;
         $resource = fopen('php://memory', 'r');
 
+        self::assertIsResource($resource);
+
         $record = new LogRecord(
             datetime: new \DateTimeImmutable,
             channel: 'database',
