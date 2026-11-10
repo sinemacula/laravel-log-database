@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Level;
 use Monolog\LogRecord;
+use Psr\Log\InvalidArgumentException;
 use SineMacula\Log\Database\Models\LogMessage;
 
 /**
@@ -92,11 +93,10 @@ final class DatabaseHandler extends AbstractProcessingHandler
     {
         $channels = $this->resolveFallbackChannels();
         $level    = strtolower($record->level->getName());
+        $message  = is_string($record->formatted) ? $record->formatted : $record->message;
 
         // Re-emit at the record's original severity so a fallback channel's own
         // level threshold does not silently drop a high-severity record.
-        $message = is_string($record->formatted) ? $record->formatted : $record->message;
-
         Log::stack($channels)->log($level, $message);
 
         // Surface the failure with the full exception detail (class, message,
@@ -113,7 +113,7 @@ final class DatabaseHandler extends AbstractProcessingHandler
      * @param  mixed  $level
      * @return \Monolog\Level
      *
-     * @throws \InvalidArgumentException
+     * @throws \Psr\Log\InvalidArgumentException
      */
     private static function resolveLevel(mixed $level): Level
     {
@@ -131,7 +131,7 @@ final class DatabaseHandler extends AbstractProcessingHandler
             }
         }
 
-        throw new \InvalidArgumentException(sprintf('The database log level must be one of: %s.', implode(', ', Level::NAMES)));
+        throw new InvalidArgumentException(sprintf('The database log level must be one of: %s.', implode(', ', Level::NAMES)));
     }
 
     /**

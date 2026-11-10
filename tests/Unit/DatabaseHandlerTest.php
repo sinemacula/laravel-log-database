@@ -12,6 +12,7 @@ use Monolog\Level;
 use Monolog\LogRecord;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Psr\Log\InvalidArgumentException;
 use SineMacula\Log\Database\DatabaseHandler;
 use SineMacula\Log\Database\Models\LogMessage;
 use Tests\TestCase;
@@ -646,7 +647,7 @@ final class DatabaseHandlerTest extends TestCase
     #[DataProvider('provideRefusedLevels')]
     public function testConstructorRefusesAnUndefinedLevel(mixed $configured): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The database log level must be one of: DEBUG, INFO, NOTICE, WARNING, ERROR, CRITICAL, ALERT, EMERGENCY.');
 
         new DatabaseHandler(['level' => $configured]);
