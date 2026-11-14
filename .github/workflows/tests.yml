@@ -64,7 +64,7 @@ jobs:
 
             -   name: Publish code coverage
                 if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' && matrix.php == '8.3' }}
-                uses: qltysh/qlty-action/coverage@ebcd284bf32e36a030afe15f1e136c7be08b9506 # v2
+                uses: qltysh/qlty-action/coverage@0ff2178667bf8eb28ed0013a7ef54857a24d4056 # v2
                 with:
                     oidc: true
                     files: clover.xml
@@ -142,7 +142,7 @@ jobs:
                     --health-start-period=30s
                     --health-start-interval=5s
             postgres:
-                image: postgres:18@sha256:e3d24f6906d0760bf4da0dae872415391ededefad23fd471c47dc53b0ddf3c42
+                image: postgres:18@sha256:b9f6b8ff03b62f3cfd9d9ba3fe56226a9991c79d3fb46fd46536263bf02be553
                 env:
                     POSTGRES_USER: postgres
                     POSTGRES_PASSWORD: password
